@@ -101,10 +101,64 @@ struct EverestGame: AdventureGame {
     ///   - input: The line the user typed.
     ///   - context: The object you use to write output and end the game.
     mutating func handle(input: String, context: AdventureGameContext) {
-        // TODO: Parse the input and implement your game logic!
-        context.write("You decide to \(input). It's not very effective.")
-        // switch statement here
-        // context.write("You have been eaten by a grue.")
+        let components = input.lowercased().split(separator: " ")
+        let command = components.first.map(String.init)
+        // Use optional
+        let argument: String? = components.dropFirst().first.map(String.init)
+
+        switch command {
+            case "north", "south", "east", "west":
+                 move(direction: command!, context: context)
+            case "look":
+                 describeLocation(context: context)
+            case "inventory":
+                 showInventory(context: context)
+            case "help":
+                 showHelp(context: context)
+//            case let itemName where command.hasPrefix("take "):
+//                 takeItem(name: String(itemName.dropFirst(5)), context: context)
+//            case let itemName where command.hasPrefix("use "):
+//                 useItem(name: String(itemName.dropFirst(4)), context: context)
+            case "take":
+                if let item = argument {
+                    takeItem(name: item, context: context)
+                } else {
+                    context.write("What do you want to take?")
+                }
+            case "use":
+                if let item = argument {
+                    useItem(name: item, context: context)
+                } else {
+                    context.write("What do you want to use?")
+                }
+            case .none:
+                context.write("Please enter a command.")
+            case .some(_):
+                context.write("I don't understand that command. Type 'help' for a list of commands.")
+        }
+        // checkGameState(context: context)
+    }
+    
+    // Functions that implement commands
+    mutating func move(direction: String, context: AdventureGameContext) {
+    }
+    
+    mutating func describeLocation(context: AdventureGameContext) {
+    }
+    
+    mutating func showInventory(context: AdventureGameContext) {
+    }
+    
+    mutating func showHelp(context: AdventureGameContext) {
+    }
+    
+    mutating func takeItem(name: String, context: AdventureGameContext) {
+    }
+    
+    mutating func useItem(name: String, context: AdventureGameContext) {
+    }
+    
+    mutating func checkGameState(context: AdventureGameContext) {
     }
 }
 
