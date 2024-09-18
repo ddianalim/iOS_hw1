@@ -47,6 +47,7 @@ struct EverestGame: AdventureGame {
     var gameState: GameState
     var inventory: [Item]
     var locations: [String: Location]
+    var weatherChecked: Bool = false
     
     init() {
         currentLocation = "Basecamp"
@@ -55,7 +56,7 @@ struct EverestGame: AdventureGame {
         
         locations = [
             "Basecamp": Location(name: "Basecamp", description: "You are at the Everest Basecamp. The journey begins here.", exits: ["north": "Camp I"], items: [Item(name: "Map", description: "A detailed map of the Everest route.")]),
-            "Camp I": Location(name: "Camp I", description: "You've reached Camp I. The air is getting thinner.", exits: ["south": "Basecamp", "north": "Camp II"], items: []),
+            "Camp I": Location(name: "Camp I", description: "You've reached Camp I. The air is getting thinner.", exits: ["south": "Basecamp", "north": "Camp II"], items: [Item(name: "Weather Radio", description: "A device for checking current weather conditions.")]),
             "Camp II": Location(name: "Camp II", description: "Welcome to Camp II. The summit looks closer, but it's still a long way.", exits: ["south": "Camp I", "north": "Camp III"], items: [Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes.")]),
             "Camp III": Location(name: "Camp III", description: "Camp III is the last stop before the death zone.", exits: ["south": "Camp II", "north": "Camp IV"], items: []),
             "Camp IV": Location(name: "Camp IV", description: "You're at Camp IV, the final camp before the summit push.", exits: ["south": "Camp III", "north": "Summit"], items: []),
@@ -73,7 +74,7 @@ struct EverestGame: AdventureGame {
         //        playIntroduction()
         context.write("Welcome to the Mt. Everest Climbing Adventure!")
         context.write("You are an experienced climber attempting to summit Mt. Everest.")
-        context.write("Your journey begins at Basecamp. Good luck, and be careful!")
+        context.write("Your journey begins at Basecamp. Good luck, and be careful!\n")
         showHelp(context: context)
         // TODO: write something about acclimitization
     }
@@ -102,10 +103,10 @@ struct EverestGame: AdventureGame {
     ///   - input: The line the user typed.
     ///   - context: The object you use to write output and end the game.
     mutating func handle(input: String, context: AdventureGameContext) {
-        let components = input.lowercased().split(separator: " ")
+        let components = input.lowercased().split(separator: " ", maxSplits: 1)
         let command = components.first.map(String.init)
         // Use optional
-        let argument: String? = components.dropFirst().first.map(String.init)
+        let argument: String? = components.count > 1 ? String(components[1]) : nil
 
         switch command {
             case "north", "south", "east", "west":
@@ -116,21 +117,17 @@ struct EverestGame: AdventureGame {
                  showInventory(context: context)
             case "help":
                  showHelp(context: context)
-//            case let itemName where command.hasPrefix("take "):
-//            takeItem(name: String(itemName.dropFirst(5)), context: context)
             case "take":
                 if let item = argument {
                     takeItem(name: item, context: context)
                 } else {
-                    context.write("What item do you want to take?")
+                    context.write("Please specify the item you want to take.")
                 }
-//                    case let itemName where command.hasPrefix("use "):
-//                         useItem(name: String(itemName.dropFirst(4)), context: context)
             case "use":
                 if let item = argument {
                     useItem(name: item, context: context)
                 } else {
-                    context.write("What item do you want to use?")
+                    context.write("Please specify the item you want to use.")
                 }
             case .none:
                 context.write("Please enter a command.")
@@ -143,9 +140,18 @@ struct EverestGame: AdventureGame {
     // Functions that implement commands
     mutating func move(direction: String, context: AdventureGameContext) {
         if let nextLocation = locations[currentLocation]?.exits[direction] {
-            currentLocation = nextLocation
-            describeLocation(context: context)
-            checkGameState(context: context)
+            if currentLocation == "Camp I" && nextLocation == "Camp II" && !weatherChecked {
+                context.write("As you start moving towards Camp II, you hear a loud rumbling. Before you can react, an avalanche engulfs you.")
+                context.write("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding at high altitudes.")
+                context.endGame()
+            } else {
+                currentLocation = nextLocation
+                if let location = locations[currentLocation] {
+                    context.write(location.description)
+                }
+//                describeLocation(context: context)
+                checkGameState(context: context)
+            }
         } else {
             context.write("You can't go that way.")
         }
@@ -153,7 +159,6 @@ struct EverestGame: AdventureGame {
     
     mutating func describeLocation(context: AdventureGameContext) {
         if let location = locations[currentLocation] {
-            context.write(location.description)
             if !location.items.isEmpty {
                 context.write("You see the following items:")
                 for item in location.items {
@@ -181,14 +186,14 @@ struct EverestGame: AdventureGame {
         context.write("- north, south, east, west: Move in a direction")
         context.write("- look: Examine your surroundings")
         context.write("- inventory: Check your inventory")
-        context.write("- take: Pick up an item")
-        context.write("- use: Use an item")
+        context.write("- take [item]: Pick up an item")
+        context.write("- use [item]: Use an item")
         context.write("- help: Show this help message")
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
         if var location = locations[currentLocation] {
-            if let index = location.items.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
+            if let index = location.items.firstIndex(where: { $0.name.lowercased().contains(name.lowercased()) }) {
                 let item = location.items.remove(at: index)
                 inventory.append(item)
                 locations[currentLocation] = location
@@ -200,6 +205,31 @@ struct EverestGame: AdventureGame {
     }
     
     mutating func useItem(name: String, context: AdventureGameContext) {
+        if let index = inventory.firstIndex(where: { $0.name.lowercased().contains(name.lowercased()) }) {
+            let item = inventory[index]
+            switch item.name {
+            case "Map":
+                context.write("You consult the map. It shows the route through the camps to the summit. The route to the summit of Mt. Everest starts at Basecamp and progresses through four higher camps: Camp I in the Western Cwm (at 6100m), Camp II at the foot of the Lhotse Face (at 6500m), Camp III on the Lhotse Face (at 7300m), and Camp IV in the Death Zone (at 7900m). From Camp IV, climbers ascend to the South Summit (at 8748m), navigate the treacherous Hillary Step, and finally reach the main summit (at 8848m). The journey is arduous and dangerous, with each section presenting unique challenges due to altitude, weather, and terrain.")
+//                if let location = locations[currentLocation] {
+//                    context.write("Exits: \(location.exits.keys.joined(separator: ", "))")
+//                }
+            case "Oxygen Tank":
+                if currentLocation == "Camp IV" || currentLocation == "Summit" {
+                    context.write("You use the oxygen tank. It helps you breathe in the thin air.")
+                    inventory.remove(at: index)
+                } else {
+                    context.write("You use up one oxygen tank herew.")
+                    inventory.remove(at: index)
+                }
+            case "Weather Radio":
+                    weatherChecked = true
+                    context.write("You check the weather conditions. The forecast shows stable weather for the next 24 hours.")
+            default:
+                context.write("You can't use the \(item.name) right now.")
+            }
+        } else {
+            context.write("You don't have a \(name) in your inventory.")
+        }
     }
     
     mutating func checkGameState(context: AdventureGameContext) {
