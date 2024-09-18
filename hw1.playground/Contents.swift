@@ -74,6 +74,7 @@ struct EverestGame: AdventureGame {
         context.write("Welcome to the Mt. Everest Climbing Adventure!")
         context.write("You are an experienced climber attempting to summit Mt. Everest.")
         context.write("Your journey begins at Basecamp. Good luck, and be careful!")
+        showHelp(context: context)
         // TODO: write something about acclimitization
     }
     
@@ -116,15 +117,15 @@ struct EverestGame: AdventureGame {
             case "help":
                  showHelp(context: context)
 //            case let itemName where command.hasPrefix("take "):
-//                 takeItem(name: String(itemName.dropFirst(5)), context: context)
-//            case let itemName where command.hasPrefix("use "):
-//                 useItem(name: String(itemName.dropFirst(4)), context: context)
+//            takeItem(name: String(itemName.dropFirst(5)), context: context)
             case "take":
                 if let item = argument {
                     takeItem(name: item, context: context)
                 } else {
                     context.write("What item do you want to take?")
                 }
+//                    case let itemName where command.hasPrefix("use "):
+//                         useItem(name: String(itemName.dropFirst(4)), context: context)
             case "use":
                 if let item = argument {
                     useItem(name: item, context: context)
@@ -165,6 +166,14 @@ struct EverestGame: AdventureGame {
     }
     
     mutating func showInventory(context: AdventureGameContext) {
+        if inventory.isEmpty {
+            context.write("Your inventory is empty.")
+        } else {
+            context.write("Your inventory contains:")
+            for item in inventory {
+                context.write("- \(item.name)")
+            }
+        }
     }
     
     mutating func showHelp(context: AdventureGameContext) {
@@ -178,6 +187,16 @@ struct EverestGame: AdventureGame {
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
+        if var location = locations[currentLocation] {
+            if let index = location.items.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
+                let item = location.items.remove(at: index)
+                inventory.append(item)
+                locations[currentLocation] = location
+                context.write("You have taken the \(item.name).")
+            } else {
+                context.write("There's no \(name) here to take.")
+            }
+        }
     }
     
     mutating func useItem(name: String, context: AdventureGameContext) {
