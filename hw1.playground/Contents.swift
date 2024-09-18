@@ -123,33 +123,58 @@ struct EverestGame: AdventureGame {
                 if let item = argument {
                     takeItem(name: item, context: context)
                 } else {
-                    context.write("What do you want to take?")
+                    context.write("What item do you want to take?")
                 }
             case "use":
                 if let item = argument {
                     useItem(name: item, context: context)
                 } else {
-                    context.write("What do you want to use?")
+                    context.write("What item do you want to use?")
                 }
             case .none:
                 context.write("Please enter a command.")
             case .some(_):
-                context.write("I don't understand that command. Type 'help' for a list of commands.")
+                context.write("That command doesn't exist. Type 'help' for a list of commands.")
         }
         // checkGameState(context: context)
     }
     
     // Functions that implement commands
     mutating func move(direction: String, context: AdventureGameContext) {
+        if let nextLocation = locations[currentLocation]?.exits[direction] {
+            currentLocation = nextLocation
+            describeLocation(context: context)
+            checkGameState(context: context)
+        } else {
+            context.write("You can't go that way.")
+        }
     }
     
     mutating func describeLocation(context: AdventureGameContext) {
+        if let location = locations[currentLocation] {
+            context.write(location.description)
+            if !location.items.isEmpty {
+                context.write("You see the following items:")
+                for item in location.items {
+                    context.write("- \(item.name)")
+                }
+            }
+//            context.write("Exits: \(location.exits.keys.joined(separator: ", "))")
+            // TODO: use map shows exits?
+        }
     }
     
     mutating func showInventory(context: AdventureGameContext) {
     }
     
     mutating func showHelp(context: AdventureGameContext) {
+        context.write("Available commands:")
+        context.write("- north, south, east, west: Move in a direction")
+        context.write("- look: Examine your surroundings")
+        context.write("- inventory: Check your inventory")
+        context.write("- take: Pick up an item")
+        context.write("- use: Use an item")
+        context.write("- help: Show this help message")
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
