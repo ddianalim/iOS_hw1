@@ -148,7 +148,6 @@ struct EverestGame: AdventureGame {
              )
          ]
     }
-    
     let mapDescription = """
     A detailed map of the Everest route. 🗺️
     ---------------------------------------
@@ -181,55 +180,17 @@ struct EverestGame: AdventureGame {
     |  : Climbing route
     """
     
-    
-    /// Runs at the start of every game.
-    ///
-    /// Use this function to introduce the game to the player.
-    ///
-    /// - Parameter context: The object you use to write output and end the game.
     mutating func start(context: AdventureGameContext) {
-        var welcomeMessage = AttributedString("Welcome to the Mt. Everest Climbing Adventure!")
-        welcomeMessage.swiftUI.font = .system(size: 28, weight: .bold, design: .serif)
-        welcomeMessage.swiftUI.foregroundColor = .blue
-        context.write(welcomeMessage)
-
-        var introMessage = AttributedString("You are an experienced climber attempting to summit Mt. Everest. After weeks of preparation at Base Camp, your body has acclimatized to the high altitude. You've completed several trips up to Camp II and back, allowing your red blood cell count to increase. Now, you're ready to begin your push to the summit from Base Camp. 🏕️ Your journey begins here. Good luck, and be careful!\n")
-        introMessage.swiftUI.font = .system(size: 14, weight: .regular, design: .serif)
-        introMessage.swiftUI.foregroundColor = .orange
-        context.write(introMessage)
+        context.write(formattedString("Welcome to the Mt. Everest Climbing Adventure!", .title, .semibold))
+        context.write(formattedString("You are an experienced climber attempting to summit Mt. Everest. After weeks of preparation at Base Camp, your body has acclimatized to the high altitude. You've completed several trips up to Camp II and back, allowing your red blood cell count to increase. Now, you're ready to begin your push to the summit from Base Camp. 🏕️ Your journey begins here. Good luck, and be careful!\n", .info))
         showHelp(context: context)
     }
     
-    /// Runs when the user enters a line of input.
-    ///
-    /// Generally, you parse the user's command, update game state as necessary, then
-    /// write output.
-    ///
-    /// To display a line to the user, use the `context.write(_)` function and pass in
-    /// a ``String``, like this:
-    ///
-    /// ```swift
-    /// context.write("You have been eaten by a grue.")
-    /// ```
-    ///
-    /// If you'd like to end the game (say, if the player dies), call context.endGame().
-    /// Note that this does *not* display a game over message - it merely disables
-    /// the buttons and forces the user to reset.
-    ///
-    /// **Sidenote:** context.write() supports AttributedString for rich text formatting.
-    /// Consult the [homework instructions](https://www.seas.upenn.edu/~cis1951/assignments/hw/hw1)
-    /// for guidance.
-    ///
-    /// - Parameters:
-    ///   - input: The line the user typed.
-    ///   - context: The object you use to write output and end the game.
     mutating func handle(input: String, context: AdventureGameContext) {
         let components = input.lowercased().split(separator: " ", maxSplits: 1)
         let command = components.first.map(String.init)
-        // Use optional
         let argument: String? = components.count > 1 ? String(components[1]) : nil
 
-        var errorMessage = AttributedString()
         switch command {
             case "north", "south", "east", "west":
                  move(direction: command!, context: context)
@@ -243,65 +204,46 @@ struct EverestGame: AdventureGame {
                 if let item = argument {
                     takeItem(name: item, context: context)
                 } else {
-                    let errorMessage = createErrorMessage("Please specify the item you want to take.")
-                    context.write(errorMessage)
+                    context.write(formattedString("Please specify the item you want to take.", .error))
                 }
             case "use":
                 if let item = argument {
                     useItem(name: item, context: context)
                 } else {
-                    let errorMessage = createErrorMessage("Please specify the item you want to use.")
-                    context.write(errorMessage)
+                    context.write(formattedString("Please specify the item you want to use.", .error))
                 }
             case "examine":
                 if let item = argument {
                     examineItem(name: item, context: context)
                 } else {
-                    let errorMessage = createErrorMessage("Please specify the item you want to examine.")
-                    context.write(errorMessage)
+                    context.write(formattedString("Please specify the item you want to examine.", .error))
                 }
             case .none:
-                let errorMessage = createErrorMessage("Please enter a command.")
-                context.write(errorMessage)
+                context.write(formattedString("Please enter a command.", .error))
             case .some(_):
-                let errorMessage = createErrorMessage("That command doesn't exist. Type 'help' for a list of commands.")
-                context.write(errorMessage)
+                context.write(formattedString("That command doesn't exist. Type 'help' for a list of commands.", .error))
         }
     }
     
-    // Functions that implement commands
     mutating func move(direction: String, context: AdventureGameContext) {
         guard let currentLocationInfo = locations[currentLocation] else {
-            context.write("Error: Current location not found.")
+            context.write(formattedString("Error: Current location not found.", .error))
             return
         }
 
         guard let nextLocation = currentLocationInfo.exits[direction],
               let nextLocationInfo = locations[nextLocation] else {
-            var wrongWayMessage = AttributedString("You can't go that way. Exits: \(currentLocationInfo.exits.keys.joined(separator: ", "))")
-            wrongWayMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            wrongWayMessage.swiftUI.foregroundColor = .red
-            context.write(wrongWayMessage)
+            context.write(formattedString("You can't go that way. Exits: \(currentLocationInfo.exits.keys.joined(separator: ", "))", .error))
             return
         }
 
-        // Check weather if required
         if currentLocationInfo.requiresWeatherCheck && !weatherChecked {
-            var avalancheMessage = AttributedString("As you start moving towards \(nextLocation), you hear a loud rumbling. Before you can react, an avalanche engulfs you.")
-            avalancheMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            avalancheMessage.swiftUI.foregroundColor = .orange
-            context.write(avalancheMessage)
-            
-            var gameOverWeatherMessage = AttributedString("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding from this location. ❄️☠️")
-            gameOverWeatherMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-            gameOverWeatherMessage.swiftUI.foregroundColor = .red
-            context.write(gameOverWeatherMessage)
-            
+            context.write(formattedString("As you start moving towards \(nextLocation), you hear a loud rumbling. Before you can react, an avalanche engulfs you.", .narrative))
+            context.write(formattedString("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding from this location. ❄️☠️", .gameOver))
             context.endGame()
             return
         }
 
-        // Handle special location interactions
         switch (currentLocation, nextLocation) {
         case ("Hillary Step", "Summit"):
             if !handleHillaryStepClimb(context: context) {
@@ -317,41 +259,25 @@ struct EverestGame: AdventureGame {
         case ("Sherpa Tent", _):
             if hasReachedSummit {
                 hasRestedDuringDescent = true
-                context.write("You take a moment to rest on the comfortable bed. You can feel your strength returning, preparing you for the descent ahead.")
+                context.write(formattedString("You take a moment to rest on the comfortable bed. You can feel your strength returning, preparing you for the descent ahead.", .narrative))
             }
         default:
             break
         }
 
-        // Move to next location
         currentLocation = nextLocation
-        var nextLocationMessage = AttributedString(nextLocationInfo.description)
-        nextLocationMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        nextLocationMessage.swiftUI.foregroundColor = .orange
-        context.write(nextLocationMessage)
+        context.write(formattedString(nextLocationInfo.description, .narrative))
         weatherChecked = false
         checkGameState(context: context)
         
-        // Check if player has used oxygen for high-altitude moves
         if isHighAltitude(location: currentLocation) || isHighAltitude(location: nextLocation) {
             if !hasUsedOxygen {
-                var oxygenMessage = AttributedString("The air is too thin to move safely. Use an oxygen tank before moving.")
-                oxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                oxygenMessage.swiftUI.foregroundColor = .yellow
-                context.write(oxygenMessage)
+                context.write(formattedString("The air is too thin to move safely. Use an oxygen tank before moving.", .warning))
             }
-            hasUsedOxygen = false // resets for next move
+            hasUsedOxygen = false
         }
     }
 
-    // Helper functions
-    private func createErrorMessage(_ message: String) -> AttributedString {
-        var errorMessage = AttributedString(message)
-        errorMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        errorMessage.swiftUI.foregroundColor = .red
-        return errorMessage
-    }
-    
     private func isHighAltitude(location: String) -> Bool {
         return location == "Camp IV" || location.contains("Summit") || location == "Hillary Step"
     }
@@ -359,22 +285,11 @@ struct EverestGame: AdventureGame {
     private mutating func useOxygenTank(context: AdventureGameContext) -> Bool {
         if let oxygenIndex = inventory.firstIndex(where: { $0.name == "Oxygen Tank" }) {
             inventory.remove(at: oxygenIndex)
-            var useOxygenMessage = AttributedString("You use an oxygen tank for this move.")
-            useOxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            useOxygenMessage.swiftUI.foregroundColor = .blue
-            context.write(useOxygenMessage)
+            context.write(formattedString("You use an oxygen tank for this move.", .action))
             return true
         } else {
-            var noOxygenMessage = AttributedString("You don't have any oxygen tanks left. You can't proceed safely at this altitude.")
-            noOxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            noOxygenMessage.swiftUI.foregroundColor = .orange
-            context.write(noOxygenMessage)
-            
-            var gameOverNoOxygenMessage = AttributedString("Game Over: You ran out of oxygen. 😵💨")
-            gameOverNoOxygenMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-            gameOverNoOxygenMessage.swiftUI.foregroundColor = .red
-            context.write(gameOverNoOxygenMessage)
-            
+            context.write(formattedString("You don't have any oxygen tanks left. You can't proceed safely at this altitude.", .narrative))
+            context.write(formattedString("Game Over: You ran out of oxygen. 😵💨", .gameOver))
             context.endGame()
             return false
         }
@@ -382,39 +297,20 @@ struct EverestGame: AdventureGame {
 
     private mutating func handleHillaryStepClimb(context: AdventureGameContext) -> Bool {
         if !inventory.contains(where: { $0.name == "Rope" }) {
-            var climbMessage = AttributedString("You attempt to climb the Hillary Step without a rope. It's an extremely dangerous move. You lose your footing and fall. The fall is fatal.")
-            climbMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            climbMessage.swiftUI.foregroundColor = .orange
-            context.write(climbMessage)
-            
-            var gameOverFallMessage = AttributedString("Game Over: Always ensure you have proper equipment before attempting dangerous climbs. 🧗‍♂️💀")
-            gameOverFallMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-            gameOverFallMessage.swiftUI.foregroundColor = .red
-            context.write(gameOverFallMessage)
-            
+            context.write(formattedString("You attempt to climb the Hillary Step without a rope. It's an extremely dangerous move. You lose your footing and fall. The fall is fatal.", .narrative))
+            context.write(formattedString("Game Over: Always ensure you have proper equipment before attempting dangerous climbs. 🧗‍♂️💀", .gameOver))
             context.endGame()
             return false
         } else {
-            var ropeMessage = AttributedString("You affix the rope to the remaining 500 meters of the climb. Installing rope lines helps you safely navigate the Hillary Step.")
-            ropeMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            ropeMessage.swiftUI.foregroundColor = .blue
-            context.write(ropeMessage)
+            context.write(formattedString("You affix the rope to the remaining 500 meters of the climb. Installing rope lines helps you safely navigate the Hillary Step.", .action))
             return true
         }
     }
 
     private func handleDescentFromCampIV(context: AdventureGameContext) -> Bool {
         if hasReachedSummit && !hasRestedDuringDescent {
-            var exhaustionMessage = AttributedString("As you attempt to descend from Camp IV to Camp III, exhaustion overtakes you. Your body, pushed to its limits by the summit climb, gives out. You collapse on the mountain.")
-            exhaustionMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            exhaustionMessage.swiftUI.foregroundColor = .orange
-            context.write(exhaustionMessage)
-            
-            var gameOverRestMessage = AttributedString("Game Over: Always rest and recover at the Sherpa Tent before attempting the long descent. 😴💀")
-            gameOverRestMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-            gameOverRestMessage.swiftUI.foregroundColor = .red
-            context.write(gameOverRestMessage)
-            
+            context.write(formattedString("As you attempt to descend from Camp IV to Camp III, exhaustion overtakes you. Your body, pushed to its limits by the summit climb, gives out. You collapse on the mountain.", .narrative))
+            context.write(formattedString("Game Over: Always rest and recover at the Sherpa Tent before attempting the long descent. 😴💀", .gameOver))
             context.endGame()
             return false
         }
@@ -423,103 +319,64 @@ struct EverestGame: AdventureGame {
     
     mutating func describeLocation(context: AdventureGameContext) {
         if let location = locations[currentLocation] {
-            var locationMessage = AttributedString("You're at \(location.name).")
+            var message = "You're at \(location.name).\n"
+            message += location.weatherHint
 
             if !location.items.isEmpty {
-                locationMessage += AttributedString(location.weatherHint)
-                locationMessage += ("\nYou see the following items:")
-                locationMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                locationMessage.swiftUI.foregroundColor = .yellow
-                context.write(locationMessage)
+                message += "\nYou see the following items:"
+                context.write(formattedString(message, .info))
                 for item in location.items {
-                    context.write(" - \(item.name)")
+                    context.write(formattedString(" - \(item.name)", .info))
                 }
-            }
-            else {
-                locationMessage = AttributedString("You don't see any items here.")
-                locationMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                locationMessage.swiftUI.foregroundColor = .red
-                context.write(locationMessage)
+            } else {
+                message += "\nYou don't see any items here."
+                context.write(formattedString(message, .info))
             }
         }
     }
     
     mutating func showInventory(context: AdventureGameContext) {
-        var inventoryMessage = AttributedString()
         if inventory.isEmpty {
-            inventoryMessage = AttributedString("Your inventory is empty.")
-            inventoryMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            inventoryMessage.swiftUI.foregroundColor = .yellow
-            context.write(inventoryMessage)
-            
+            context.write(formattedString("Your inventory is empty.", .info))
         } else {
-            inventoryMessage = AttributedString("Your inventory contains:")
-            inventoryMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            inventoryMessage.swiftUI.foregroundColor = .yellow
-            context.write(inventoryMessage)
+            context.write(formattedString("Your inventory contains:", .info))
             for item in inventory {
-                context.write("- \(item.name)")
-        }
+                context.write(formattedString("- \(item.name)", .info))
+            }
         }
     }
     
     mutating func showHelp(context: AdventureGameContext) {
+        context.write(formattedString("Available commands:", .subtitle, .semibold))
+        let commands = """
+         - north, south, east, west: Move in a direction
+         - look: Examine your surroundings
+         - inventory: Check your inventory
+         - take [item]: Pick up an item
+         - use [item]: Use an item
+         - examine [item]: Examine an item closely
+         - help: Show this help message
+        """
+        context.write(formattedString(commands, .info))
         
-        var commandsMessage = AttributedString("Available commands:")
-        commandsMessage.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
-        commandsMessage.swiftUI.foregroundColor = .yellow
-        context.write(commandsMessage)
-        commandsMessage = AttributedString(" - north, south, east, west: Move in a direction\n - look: Examine your surroundings\n - inventory: Check your inventory\n - take [item]: Pick up an item\n - use [item]: Use an item\n - examine [item]: Examine an item closely\n - help: Show this help message\n")
-        commandsMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        commandsMessage.swiftUI.foregroundColor = .yellow
-        context.write(commandsMessage)
-        
-        var colorExplanationTitle = AttributedString("Color Guide for Game Messages:")
-        colorExplanationTitle.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
-        colorExplanationTitle.swiftUI.foregroundColor = .white
-        context.write(colorExplanationTitle)
-
-        var infoColorExplanation = AttributedString(" - New information messages (e.g., \"Your inventory is empty\")")
-        infoColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        infoColorExplanation.swiftUI.foregroundColor = .yellow
-        context.write(infoColorExplanation)
-
-        var narrativeColorExplanation = AttributedString(" - Narrative messages (e.g., \"It shows the route through the camps\")")
-        narrativeColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        narrativeColorExplanation.swiftUI.foregroundColor = .orange
-        context.write(narrativeColorExplanation)
-
-        var actionColorExplanation = AttributedString("- Action messages (e.g., \"You use an oxygen tank\")")
-        actionColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        actionColorExplanation.swiftUI.foregroundColor = .blue
-        context.write(actionColorExplanation)
-
-        var warningColorExplanation = AttributedString(" - Critical warnings and game over messages")
-        warningColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        warningColorExplanation.swiftUI.foregroundColor = .red
-        context.write(warningColorExplanation)
-        
-        var victoryColorExplanation = AttributedString("- Summit achievement and victory messages")
-        victoryColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        victoryColorExplanation.swiftUI.foregroundColor = .green
-        context.write(victoryColorExplanation)
+        context.write(formattedString("Color Guide for Game Messages:", .subtitle, .semibold))
+        context.write(formattedString(" - New information messages (e.g., \"Your inventory is empty\")", .info))
+        context.write(formattedString(" - Narrative messages (e.g., \"It shows the route through the camps\")", .narrative))
+        context.write(formattedString(" - Action messages (e.g., \"You use an oxygen tank\")", .action))
+        context.write(formattedString(" - Critical warnings and game over messages", .error))
+        context.write(formattedString(" - Summit achievement and victory messages", .success))
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
-        var itemMessage = AttributedString()
         if var location = locations[currentLocation] {
             if let index = location.items.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
                 let item = location.items.remove(at: index)
                 inventory.append(item)
                 locations[currentLocation] = location
-                itemMessage = AttributedString("You have taken the \(item.name).")
-                itemMessage.swiftUI.foregroundColor = .yellow
+                context.write(formattedString("You have taken the \(item.name).", .action))
             } else {
-                itemMessage = AttributedString("There's no \(name) here to take.")
-                itemMessage.swiftUI.foregroundColor = .red
+                context.write(formattedString("There's no \(name) here to take.", .error))
             }
-            itemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            context.write(itemMessage)
         }
     }
     
@@ -528,54 +385,30 @@ struct EverestGame: AdventureGame {
             let item = inventory[index]
             switch item.name {
                 case "Map":
-                    var mapMessage = AttributedString("You consult the map.")
-                    mapMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                    mapMessage.swiftUI.foregroundColor = .blue
-                    context.write(mapMessage)  
-                    mapMessage = AttributedString("It shows the route through the camps to the summit. The route to the summit of Mt. Everest starts at Basecamp and progresses through four higher camps: Camp I in the Western Cwm (at 6100m), Camp II at the foot of the Lhotse Face (at 6500m), Camp III on the Lhotse Face (at 7300m), and Camp IV in the Death Zone (at 7900m). From Camp IV, climbers ascend to the South Summit (at 8748m), navigate the treacherous Hillary Step, and finally reach the main summit (at 8848m). The journey is arduous and dangerous, with each section presenting unique challenges due to altitude, weather, and terrain. 🗺️ \nAt the bottom of the map, you see the following text:\n")
-                    mapMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                    mapMessage.swiftUI.foregroundColor = .orange
-                    context.write(mapMessage)
-                    var importantMessage = AttributedString("NOTE: At high altitudes (Camp IV and above), you must use an oxygen tank before each move.\n")
-                    importantMessage.swiftUI.font = .system(size: 13, weight: .bold, design: .serif)
-                    importantMessage.swiftUI.foregroundColor = .red
-                    context.write(importantMessage)
+                    context.write(formattedString("You consult the map.", .action))
+                    let mapInfo = """
+                    It shows the route through the camps to the summit. The route to the summit of Mt. Everest starts at Basecamp and progresses through four higher camps: Camp I in the Western Cwm (at 6100m), Camp II at the foot of the Lhotse Face (at 6500m), Camp III on the Lhotse Face (at 7300m), and Camp IV in the Death Zone (at 7900m). From Camp IV, climbers ascend to the South Summit (at 8748m), navigate the treacherous Hillary Step, and finally reach the main summit (at 8848m). The journey is arduous and dangerous, with each section presenting unique challenges due to altitude, weather, and terrain. 🗺️
+                    At the bottom of the map, you see the following text:
+                    """
+                    context.write(formattedString(mapInfo, .narrative))
+                    context.write(formattedString("NOTE: At high altitudes (Camp IV and above), you must use an oxygen tank before each move.", .warning))
                 case "Oxygen Tank":
                     if isHighAltitude(location: currentLocation) {
-                        var useOxygenMessage = AttributedString("You use the oxygen tank. It helps you breathe in the thin air.")
-                        useOxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                        useOxygenMessage.swiftUI.foregroundColor = .blue
-                        context.write(useOxygenMessage)
+                        context.write(formattedString("You use the oxygen tank. It helps you breathe in the thin air.", .action))
                         inventory.remove(at: index)
                         hasUsedOxygen = true
                     } else {
-                        var saveOxygenMessage = AttributedString("You don't need to use the oxygen tank here. Save it for higher altitudes.")
-                        saveOxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                        saveOxygenMessage.swiftUI.foregroundColor = .yellow
-                        context.write(saveOxygenMessage)
+                        context.write(formattedString("You don't need to use the oxygen tank here. Save it for higher altitudes.", .info))
                     }
                 case "Weather Radio":
-                weatherChecked = true
-                    var checkWeatherMessage = AttributedString("You check the weather conditions. The forecast shows stable weather for the next 24 hours.")
-                    checkWeatherMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                    checkWeatherMessage.swiftUI.foregroundColor = .blue
-                    context.write(checkWeatherMessage)
-                    
-                    var safetyMessage = AttributedString("You've successfully checked the weather and can proceed safely.")
-                    safetyMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                    safetyMessage.swiftUI.foregroundColor = .yellow
-                    context.write(safetyMessage)
+                    weatherChecked = true
+                    context.write(formattedString("You check the weather conditions. The forecast shows stable weather for the next 24 hours.", .action))
+                    context.write(formattedString("You've successfully checked the weather and can proceed safely.", .info))
                 default:
-                    var cannotUseMessage = AttributedString("You can't use the \(item.name) right now.")
-                    cannotUseMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                    cannotUseMessage.swiftUI.foregroundColor = .yellow
-                    context.write(cannotUseMessage)
+                    context.write(formattedString("You can't use the \(item.name) right now.", .info))
             }
         } else {
-            var noItemMessage = AttributedString("You don't have a \(name) in your inventory.")
-            noItemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            noItemMessage.swiftUI.foregroundColor = .red
-            context.write(noItemMessage)
+            context.write(formattedString("You don't have a \(name) in your inventory.", .error))
         }
     }
     
@@ -584,43 +417,23 @@ struct EverestGame: AdventureGame {
         case "Summit":
             if gameState != .atSummit {
                 gameState = .atSummit
-                var summitMessage = AttributedString("You take in the breathtaking view from the top of the world! 😲🌎")
-                summitMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                summitMessage.swiftUI.foregroundColor = .green
-                context.write(summitMessage)
-
-                var descentMessage = AttributedString("As you bask in your achievement, you can't help but think about the challenging descent ahead. The journey is only half over, and you'll need all your strength for the way down. 💪")
-                descentMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                descentMessage.swiftUI.foregroundColor = .orange
-                context.write(descentMessage)
+                context.write(formattedString("You take in the breathtaking view from the top of the world! 😲🌎", .success))
+                context.write(formattedString("As you bask in your achievement, you can't help but think about the challenging descent ahead. The journey is only half over, and you'll need all your strength for the way down. 💪", .narrative))
             }
         case "Hillary Step":
             if gameState == .atSummit {
                 gameState = .descending
-                var descentMessage = AttributedString("You've started your descent from the summit. Be careful on your way down.")
-                descentMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                descentMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                descentMessage.swiftUI.foregroundColor = .orange
-                context.write(descentMessage)            }
+                context.write(formattedString("You've started your descent from the summit. Be careful on your way down.", .narrative))
+            }
         case "Camp IV":
             if !inventory.contains(where: { $0.name == "Oxygen Tank" }) {
-                var deathZoneMessage = AttributedString("You're in the death zone without a full oxygen tank. The lack of oxygen is fatal.")
-                deathZoneMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                deathZoneMessage.swiftUI.foregroundColor = .orange
-                context.write(deathZoneMessage)
-                
-                var gameOverOxygenMessage = AttributedString("Game Over: You didn't survive the climb.")
-                gameOverOxygenMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-                gameOverOxygenMessage.swiftUI.foregroundColor = .red
-                context.write(gameOverOxygenMessage)
+                context.write(formattedString("You're in the death zone without a full oxygen tank. The lack of oxygen is fatal.", .narrative))
+                context.write(formattedString("Game Over: You didn't survive the climb.", .gameOver))
                 context.endGame()
             }
         case "Basecamp":
             if gameState == .descending {
-                var victoryMessage = AttributedString("You've successfully returned to Base Camp. Congratulations on your Everest expedition! 🎊🏅")
-                victoryMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
-                victoryMessage.swiftUI.foregroundColor = .green
-                context.write(victoryMessage)
+                context.write(formattedString("You've successfully returned to Base Camp. Congratulations on your Everest expedition! 🎊🏅", .success))
                 context.endGame()
             }
         default:
@@ -631,25 +444,60 @@ struct EverestGame: AdventureGame {
     }
     
     mutating func examineItem(name: String, context: AdventureGameContext) {
-        var itemMessage = AttributedString()
-        if let index = inventory.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
-            let item = inventory[index]
-            itemMessage = AttributedString(item.description)
-            itemMessage.swiftUI.foregroundColor = .yellow
+        if let item = inventory.first(where: { $0.name.lowercased() == name.lowercased() }) {
+            context.write(formattedString(item.description, .info))
         } else if let location = locations[currentLocation],
-              let index = location.items.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
-            let item = location.items[index]
-            itemMessage = AttributedString(item.description)
-            itemMessage.swiftUI.foregroundColor = .yellow
+                  let item = location.items.first(where: { $0.name.lowercased() == name.lowercased() }) {
+            context.write(formattedString(item.description, .info))
         } else {
-            itemMessage = AttributedString("You don't see a \(name) here. 🔍")
-            itemMessage.swiftUI.foregroundColor = .red
+            context.write(formattedString("You don't see a \(name) here. 🔍", .error))
         }
-        itemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        context.write(itemMessage)
+    }
+
+    // Helper function for formatting strings
+    private func formattedString(_ text: String, _ style: TextStyle, _ weight: Font.Weight = .regular) -> AttributedString {
+        var attributedString = AttributedString(text)
+        attributedString.swiftUI.font = .system(size: style.fontSize, weight: weight, design: .serif)
+        attributedString.swiftUI.foregroundColor = style.color
+        return attributedString
     }
 }
 
-// Leave this line in - this line sets up the UI you see on the right.
-// Update this if you rename your AdventureGame implementation.
-EverestGame.display()
+// Enum for text styles
+private enum TextStyle {
+    case title
+    case narrative
+    case info
+    case action
+    case warning
+    case error
+    case gameOver
+    case success
+    case subtitle
+
+    var fontSize: CGFloat {
+        switch self {
+        case .title: return 28
+        case .subtitle: return 16
+        case .gameOver, .success: return 16
+        default: return 13
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .title: return .blue
+        case .narrative: return .orange
+        case .info: return .yellow
+        case .action: return .blue
+        case .warning: return .yellow
+        case .error: return .red
+        case .gameOver: return .red
+        case .success: return .green
+        case .subtitle: return .white
+        }
+    }
+    }
+
+    // This line sets up the UI
+    EverestGame.display()
