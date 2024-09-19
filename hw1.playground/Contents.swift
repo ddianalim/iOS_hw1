@@ -322,8 +322,8 @@ struct EverestGame: AdventureGame {
             noOxygenMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
             noOxygenMessage.swiftUI.foregroundColor = .orange
             context.write(noOxygenMessage)
-            var gameOverNoOxygenMessage = AttributedString("Game Over: You ran out of oxygen. 😵💨")
             
+            var gameOverNoOxygenMessage = AttributedString("Game Over: You ran out of oxygen. 😵💨")
             gameOverNoOxygenMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
             gameOverNoOxygenMessage.swiftUI.foregroundColor = .red
             context.write(gameOverNoOxygenMessage)
@@ -419,7 +419,7 @@ struct EverestGame: AdventureGame {
     mutating func showHelp(context: AdventureGameContext) {
         
         var commandsMessage = AttributedString("Available commands:")
-        commandsMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        commandsMessage.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
         commandsMessage.swiftUI.foregroundColor = .yellow
         context.write(commandsMessage)
         context.write("- north, south, east, west: Move in a direction")
@@ -429,6 +429,36 @@ struct EverestGame: AdventureGame {
         context.write("- use [item]: Use an item")
         context.write("- examine [item]: Examine an item closely")
         context.write("- help: Show this help message\n")
+        
+        var colorExplanationTitle = AttributedString("Color Guide for Game Messages:")
+        colorExplanationTitle.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
+        colorExplanationTitle.swiftUI.foregroundColor = .white
+        context.write(colorExplanationTitle)
+
+        var infoColorExplanation = AttributedString(" - New information messages (e.g., \"Your inventory is empty\")")
+        infoColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        infoColorExplanation.swiftUI.foregroundColor = .yellow
+        context.write(infoColorExplanation)
+
+        var narrativeColorExplanation = AttributedString(" - Narrative messages (e.g., \"It shows the route through the camps\")")
+        narrativeColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        narrativeColorExplanation.swiftUI.foregroundColor = .orange
+        context.write(narrativeColorExplanation)
+
+        var actionColorExplanation = AttributedString("- Action messages (e.g., \"You use an oxygen tank\")")
+        actionColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        actionColorExplanation.swiftUI.foregroundColor = .blue
+        context.write(actionColorExplanation)
+
+        var warningColorExplanation = AttributedString(" - Critical warnings and game over messages")
+        warningColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        warningColorExplanation.swiftUI.foregroundColor = .red
+        context.write(warningColorExplanation)
+        
+        var victoryColorExplanation = AttributedString("- Summit achievement and victory messages")
+        victoryColorExplanation.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        victoryColorExplanation.swiftUI.foregroundColor = .green
+        context.write(victoryColorExplanation)
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
@@ -535,7 +565,7 @@ struct EverestGame: AdventureGame {
                 context.write(deathZoneMessage)
                 
                 var gameOverOxygenMessage = AttributedString("Game Over: You didn't survive the climb.")
-                gameOverOxygenMessage.swiftUI.font = .system(size: 18, weight: .bold, design: .serif)
+                gameOverOxygenMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
                 gameOverOxygenMessage.swiftUI.foregroundColor = .red
                 context.write(gameOverOxygenMessage)
                 context.endGame()
@@ -543,7 +573,7 @@ struct EverestGame: AdventureGame {
         case "Basecamp":
             if gameState == .descending {
                 var victoryMessage = AttributedString("You've successfully returned to Basecamp. Congratulations on your Everest expedition! 🎊🏅")
-                victoryMessage.swiftUI.font = .system(size: 16, weight: .regular, design: .serif)
+                victoryMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
                 victoryMessage.swiftUI.foregroundColor = .green
                 context.write(victoryMessage)
                 context.endGame()
