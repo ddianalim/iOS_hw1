@@ -32,14 +32,7 @@ protocol GameObject {
 extension Location: GameObject {}
 extension Item: GameObject {}
 
-/// Declare your game's behavior and state in this struct.
-///
-/// This struct will be re-created when the game resets. All game state should
-/// be stored in this struct.
 struct EverestGame: AdventureGame {
-    /// Returns a title to be displayed at the top of the game.
-    ///
-    /// You can generate this dynamically based on your game's state.
     var title: String {
         return "Climbing Mt. Everest 🏔️"
     }
