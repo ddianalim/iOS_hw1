@@ -43,10 +43,12 @@ Optionals are used in several ways:
 **What extra credit features did you implement, if any?**
 
 * Rich Text Implementation: Added colored and formatted text for key game messages, including:
-  - Blue, large serif font for welcome and summit achievement messages
-  - Yellow, serif font for new information (e.g. "Available Commands", "You see the following items") 
-  - Red, large serif font for critical warnings and game over messages
-  - Green, large serif font for the victory message!
+  - Welcome message: Blue, large serif font
+  - Critical warnings and game over messages: Red, large serif font
+  - Messages that add new information: Yellow, serif font, size 13. (e.g. "Your inventory is empty", "Available commands")
+  - Messages narrating the story: Orange, serif font, size 13. (e.g. "As you start moving...", "As you attempt to descend", "As you bask in your achievement")
+  - Messages about actions: Blue, serif font, size 13. (e.g. "You use an oxygen tank", "You check the weather conditions")
+  - Summit Achievement + Victory message: Green, large serif font!
 
 This implementation enhances the visual appeal and readability of the game, making important information stand out to the player.
 
