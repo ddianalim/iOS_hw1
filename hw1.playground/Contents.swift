@@ -60,11 +60,11 @@ struct EverestGame: AdventureGame {
         locations = [
              "Basecamp": Location(
                  name: "Basecamp",
-                 description: "You are at the Everest Basecamp (5300m). The journey begins here. 🥾",
+                 description: "You are at the Everest Basecamp (5300m). The journey begins here. 🏕️🥾",
                  weatherHint: "The weather can change rapidly in the mountains.",
                  oxygenHint: "At this altitude, your body is already adjusting to the thin air. Climbers spend weeks here acclimatizing before attempting higher camps.",
                  exits: ["north": "Camp I"],
-                 items: [Item(name: "Map", description: "A detailed map of the Everest route. 🗺️")],
+                 items: [Item(name: "Map", description: mapDescription)],
                  requiresWeatherCheck: false
              ),
              "Camp I": Location(
@@ -149,6 +149,39 @@ struct EverestGame: AdventureGame {
          ]
     }
     
+    let mapDescription = """
+    A detailed map of the Everest route. 🗺️
+    ---------------------------------------
+          🏔️ Summit (8848m)
+            |
+            | Hillary Step (8790m)
+            |
+        🏔️ South Summit (8748m)
+            |
+            |
+    ⛺ Camp IV (7900m)---🛌 Sherpa Tent
+            |
+            |
+    ⛺ Camp III (7300m)
+            |
+            |
+     ⛺ Camp II (6500m)
+            |
+            |
+     ⛺ Camp I (6100m)
+            |
+            |
+      🏕️ Base Camp (5300m)
+    ---------------------------------------
+    Legend:
+    🏔️ : Summit points
+    ⛺ : Camps
+    🛌 : Sherpa Tent
+    🏕️ : Base Camp
+    |  : Climbing route
+    """
+    
+    
     /// Runs at the start of every game.
     ///
     /// Use this function to introduce the game to the player.
@@ -160,7 +193,7 @@ struct EverestGame: AdventureGame {
         welcomeMessage.swiftUI.foregroundColor = .blue
         context.write(welcomeMessage)
 
-        var introMessage = AttributedString("You are an experienced climber attempting to summit Mt. Everest. After weeks of preparation at Base Camp, your body has acclimatized to the high altitude. You've completed several trips up to Camp II and back, allowing your red blood cell count to increase. Now, you're ready to begin your push to the summit from Base Camp. Your journey begins here. Good luck, and be careful!\n")
+        var introMessage = AttributedString("You are an experienced climber attempting to summit Mt. Everest. After weeks of preparation at Base Camp, your body has acclimatized to the high altitude. You've completed several trips up to Camp II and back, allowing your red blood cell count to increase. Now, you're ready to begin your push to the summit from Base Camp. 🏕️ Your journey begins here. Good luck, and be careful!\n")
         introMessage.swiftUI.font = .system(size: 14, weight: .regular, design: .serif)
         introMessage.swiftUI.foregroundColor = .orange
         context.write(introMessage)
@@ -196,6 +229,7 @@ struct EverestGame: AdventureGame {
         // Use optional
         let argument: String? = components.count > 1 ? String(components[1]) : nil
 
+        var errorMessage = AttributedString()
         switch command {
             case "north", "south", "east", "west":
                  move(direction: command!, context: context)
@@ -209,24 +243,29 @@ struct EverestGame: AdventureGame {
                 if let item = argument {
                     takeItem(name: item, context: context)
                 } else {
-                    context.write("Please specify the item you want to take.")
+                    let errorMessage = createErrorMessage("Please specify the item you want to take.")
+                    context.write(errorMessage)
                 }
             case "use":
                 if let item = argument {
                     useItem(name: item, context: context)
                 } else {
-                    context.write("Please specify the item you want to use.")
+                    let errorMessage = createErrorMessage("Please specify the item you want to use.")
+                    context.write(errorMessage)
                 }
             case "examine":
                 if let item = argument {
                     examineItem(name: item, context: context)
                 } else {
-                    context.write("Please specify the item you want to examine.")
+                    let errorMessage = createErrorMessage("Please specify the item you want to examine.")
+                    context.write(errorMessage)
                 }
             case .none:
-                context.write("Please enter a command.")
+                let errorMessage = createErrorMessage("Please enter a command.")
+                context.write(errorMessage)
             case .some(_):
-                context.write("That command doesn't exist. Type 'help' for a list of commands.")
+                let errorMessage = createErrorMessage("That command doesn't exist. Type 'help' for a list of commands.")
+                context.write(errorMessage)
         }
     }
     
@@ -241,7 +280,8 @@ struct EverestGame: AdventureGame {
               let nextLocationInfo = locations[nextLocation] else {
             var wrongWayMessage = AttributedString("You can't go that way. Exits: \(currentLocationInfo.exits.keys.joined(separator: ", "))")
             wrongWayMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            wrongWayMessage.swiftUI.foregroundColor = .yellow
+            wrongWayMessage.swiftUI.foregroundColor = .red
+            context.write(wrongWayMessage)
             return
         }
 
@@ -305,6 +345,13 @@ struct EverestGame: AdventureGame {
     }
 
     // Helper functions
+    private func createErrorMessage(_ message: String) -> AttributedString {
+        var errorMessage = AttributedString(message)
+        errorMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        errorMessage.swiftUI.foregroundColor = .red
+        return errorMessage
+    }
+    
     private func isHighAltitude(location: String) -> Bool {
         return location == "Camp IV" || location.contains("Summit") || location == "Hillary Step"
     }
@@ -391,7 +438,7 @@ struct EverestGame: AdventureGame {
             else {
                 locationMessage = AttributedString("You don't see any items here.")
                 locationMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-                locationMessage.swiftUI.foregroundColor = .yellow
+                locationMessage.swiftUI.foregroundColor = .red
                 context.write(locationMessage)
             }
         }
@@ -469,11 +516,12 @@ struct EverestGame: AdventureGame {
                 inventory.append(item)
                 locations[currentLocation] = location
                 itemMessage = AttributedString("You have taken the \(item.name).")
+                itemMessage.swiftUI.foregroundColor = .yellow
             } else {
                 itemMessage = AttributedString("There's no \(name) here to take.")
+                itemMessage.swiftUI.foregroundColor = .red
             }
             itemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            itemMessage.swiftUI.foregroundColor = .yellow
             context.write(itemMessage)
         }
     }
@@ -492,7 +540,7 @@ struct EverestGame: AdventureGame {
                     mapMessage.swiftUI.foregroundColor = .orange
                     context.write(mapMessage)
                     var importantMessage = AttributedString("NOTE: At high altitudes (Camp IV and above), you must use an oxygen tank before each move.\n")
-                    importantMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
+                    importantMessage.swiftUI.font = .system(size: 13, weight: .bold, design: .serif)
                     importantMessage.swiftUI.foregroundColor = .red
                     context.write(importantMessage)
                 case "Oxygen Tank":
@@ -529,7 +577,7 @@ struct EverestGame: AdventureGame {
         } else {
             var noItemMessage = AttributedString("You don't have a \(name) in your inventory.")
             noItemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-            noItemMessage.swiftUI.foregroundColor = .yellow
+            noItemMessage.swiftUI.foregroundColor = .red
             context.write(noItemMessage)
         }
     }
@@ -572,7 +620,7 @@ struct EverestGame: AdventureGame {
             }
         case "Basecamp":
             if gameState == .descending {
-                var victoryMessage = AttributedString("You've successfully returned to Basecamp. Congratulations on your Everest expedition! 🎊🏅")
+                var victoryMessage = AttributedString("You've successfully returned to Base Camp. Congratulations on your Everest expedition! 🎊🏅")
                 victoryMessage.swiftUI.font = .system(size: 16, weight: .bold, design: .serif)
                 victoryMessage.swiftUI.foregroundColor = .green
                 context.write(victoryMessage)
@@ -590,15 +638,17 @@ struct EverestGame: AdventureGame {
         if let index = inventory.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
             let item = inventory[index]
             itemMessage = AttributedString(item.description)
+            itemMessage.swiftUI.foregroundColor = .yellow
         } else if let location = locations[currentLocation],
               let index = location.items.firstIndex(where: { $0.name.lowercased() == name.lowercased() }) {
             let item = location.items[index]
             itemMessage = AttributedString(item.description)
+            itemMessage.swiftUI.foregroundColor = .yellow
         } else {
             itemMessage = AttributedString("You don't see a \(name) here. 🔍")
+            itemMessage.swiftUI.foregroundColor = .red
         }
         itemMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
-        itemMessage.swiftUI.foregroundColor = .yellow
         context.write(itemMessage)
     }
 }
