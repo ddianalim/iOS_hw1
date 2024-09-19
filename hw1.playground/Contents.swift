@@ -62,11 +62,11 @@ struct EverestGame: AdventureGame {
         locations = [
              "Basecamp": Location(
                  name: "Basecamp",
-                 description: "You are at the Everest Basecamp (5300m). The journey begins here.",
+                 description: "You are at the Everest Basecamp (5300m). The journey begins here. 🥾",
                  weatherHint: "The weather can change rapidly in the mountains.",
                  oxygenHint: "At this altitude, your body is already adjusting to the thin air. Climbers spend weeks here acclimatizing before attempting higher camps.",
                  exits: ["north": "Camp I"],
-                 items: [Item(name: "Map", description: "A detailed map of the Everest route.")],
+                 items: [Item(name: "Map", description: "A detailed map of the Everest route. 🗺️")],
                  requiresWeatherCheck: false
              ),
              "Camp I": Location(
@@ -75,7 +75,7 @@ struct EverestGame: AdventureGame {
                  weatherHint: "The route ahead through the Western Cwm is known for its unpredictable weather. A thorough weather check could prevent disaster.",
                  oxygenHint: "The air here contains about 47% of the oxygen available at sea level. Your body is working harder to compensate.",
                  exits: ["south": "Basecamp", "north": "Camp II"],
-                 items: [Item(name: "Weather Radio", description: "A device for checking current weather conditions.")],
+                 items: [Item(name: "Weather Radio", description: "A device for checking current weather conditions. 📻")],
                  requiresWeatherCheck: true
              ),
              "Camp II": Location(
@@ -89,7 +89,7 @@ struct EverestGame: AdventureGame {
              ),
              "Camp III": Location(
                  name: "Camp III",
-                 description: "Welcome to Camp III. This is the last stop before the death zone. (7300m)",
+                 description: "Welcome to Camp III. This is the last stop before the death zone. (7300m) ☠️",
                  weatherHint: "You're entering the death zone soon. Weather conditions can deteriorate quickly at this altitude. A final check before the push to Camp IV is essential.",
                  oxygenHint: "You'll need oxygen tanks for each move above this point. Make sure you have enough for the journey up and down.",
                  exits: ["south": "Camp II", "north": "Camp IV"],
@@ -100,7 +100,7 @@ struct EverestGame: AdventureGame {
              ),
              "Camp IV": Location(
                  name: "Camp IV",
-                 description: "You're at Camp IV, the final camp before the summit push. The air is dangerously thin here. To the west, you notice a Sherpa tent where climbers often prepare for the final ascent or recover after summiting. (7900m)",
+                 description: "You're at Camp IV, the final camp before the summit push. The air is dangerously thin here. To the west, you notice a Sherpa tent where climbers often prepare for the final ascent or recover after summiting. (7900m) ⛺️",
                  weatherHint: "The weather window for a summit attempt is crucial.",
                  oxygenHint: "You are now in the death zone. Your body is slowly dying at this altitude. Use an oxygen tank for every move from here on.",
                  exits: ["south": "Camp III", "north": "South Summit", "west": "Sherpa Tent"],
@@ -109,11 +109,11 @@ struct EverestGame: AdventureGame {
              ),
              "Sherpa Tent": Location(
                  name: "Sherpa Tent",
-                 description: "You hike to a small tent used by Sherpas. It contains supplies and a comfortable-looking bed.",
+                 description: "You hike to a small tent used by Sherpas. It contains supplies and a comfortable-looking bed. 🛌",
                  weatherHint: "Even from inside the tent, you can hear the wind howling. It would be wise to check the conditions before venturing out.",
                  oxygenHint: "There are oxygen tanks here. Remember, you'll need one for each move at this altitude.",
                  exits: ["east": "Camp IV"],
-                 items: [Item(name: "Rope", description: "A sturdy rope, essential for navigating treacherous parts of the climb."),
+                 items: [Item(name: "Rope", description: "A sturdy rope, essential for navigating treacherous parts of the climb. 🧵"),
                          Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes."),
                          Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes.")],
                  requiresWeatherCheck: true
@@ -130,7 +130,7 @@ struct EverestGame: AdventureGame {
              ),
              "Hillary Step": Location(
                  name: "Hillary Step",
-                 description: "You're at the Hillary Step, a near-vertical rock face. This is the last major challenge before the summit.",
+                 description: "You're at the Hillary Step, a near-vertical rock face. This is the last major challenge before the summit. 🧗‍♂️",
                  weatherHint: "The exposed nature of the Hillary Step makes it vulnerable to sudden weather changes. Be absolutely sure of the conditions before proceeding.",
                  oxygenHint: "The oxygen level here is only 33% of that at sea level. Every breath is a struggle. Make sure you have enough oxygen for the final push and return.",
                  exits: ["west": "South Summit", "north": "Summit"],
@@ -139,7 +139,7 @@ struct EverestGame: AdventureGame {
              ),
              "Summit": Location(
                  name: "Summit",
-                 description: "Congratulations! You've reached the summit of Mt. Everest! (8848m)",
+                 description: "Congratulations! You've reached the summit of Mt. Everest! (8848m) 🎉🏆",
                  weatherHint: "Even at the top, the weather remains a critical factor. Check the conditions for a safe descent - the journey is only half over.",
                  oxygenHint: "You've made it to the top! But remember, you still need oxygen for the descent. Start heading down before your supply runs out.",
                  exits: ["south": "Hillary Step"],
@@ -156,11 +156,8 @@ struct EverestGame: AdventureGame {
     /// - Parameter context: The object you use to write output and end the game.
     mutating func start(context: AdventureGameContext) {
         context.write("Welcome to the Mt. Everest Climbing Adventure!")
-        context.write("You are an experienced climber attempting to summit Mt. Everest.")
-        context.write("\nAfter weeks of preparation at Base Camp, your body has acclimatized to the high altitude.")
-        context.write("You've completed several trips up to Camp II and back, allowing your red blood cell count to increase.")
-        context.write("Now, you're ready to begin your push to the summit from Base Camp.")
-        context.write("\nYour journey begins here. Good luck, and be careful!")
+        context.write("You are an experienced climber attempting to summit Mt. Everest. After weeks of preparation at Base Camp, your body has acclimatized to the high altitude. You've completed several trips up to Camp II and back, allowing your red blood cell count to increase. Now, you're ready to begin your push to the summit from Base Camp.")
+        context.write("\nYour journey begins here. Good luck, and be careful!\n")
         showHelp(context: context)
     }
     
@@ -245,7 +242,7 @@ struct EverestGame: AdventureGame {
         // Check weather if required
         if currentLocationInfo.requiresWeatherCheck && !weatherChecked {
             context.write("As you start moving towards \(nextLocation), you hear a loud rumbling. Before you can react, an avalanche engulfs you.")
-            context.write("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding from this location.")
+            context.write("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding from this location. ❄️☠️")
             context.endGame()
             return
         }
@@ -301,7 +298,7 @@ struct EverestGame: AdventureGame {
             return true
         } else {
             context.write("You don't have any oxygen tanks left. You can't proceed safely at this altitude.")
-            context.write("Game Over: You ran out of oxygen.")
+            context.write("Game Over: You ran out of oxygen. 😵💨")
             context.endGame()
             return false
         }
@@ -311,7 +308,7 @@ struct EverestGame: AdventureGame {
         if !inventory.contains(where: { $0.name == "Rope" }) {
             context.write("You attempt to climb the Hillary Step without a rope. It's an extremely dangerous move.")
             context.write("You lose your footing and fall. The fall is fatal.")
-            context.write("Game Over: Always ensure you have proper equipment before attempting dangerous climbs.")
+            context.write("Game Over: Always ensure you have proper equipment before attempting dangerous climbs. 🧗‍♂️💀")
             context.endGame()
             return false
         } else {
@@ -324,7 +321,7 @@ struct EverestGame: AdventureGame {
         if hasReachedSummit && !hasRestedDuringDescent {
             context.write("As you attempt to descend from Camp IV to Camp III, exhaustion overtakes you.")
             context.write("Your body, pushed to its limits by the summit climb, gives out. You collapse on the mountain.")
-            context.write("Game Over: Always rest and recover at the Sherpa Tent before attempting the long descent.")
+            context.write("Game Over: Always rest and recover at the Sherpa Tent before attempting the long descent. 😴💀")
             context.endGame()
             return false
         }
@@ -368,7 +365,7 @@ struct EverestGame: AdventureGame {
         context.write("- use [item]: Use an item")
         context.write("- examine [item]: Examine an item closely")
         context.write("- help: Show this help message")
-        context.write("\nImportant: At high altitudes (Camp IV and above), you must use an oxygen tank before each move.")
+        context.write("\nImportant Note: At high altitudes (Camp IV and above), you must use an oxygen tank before each move.\n")
     }
     
     mutating func takeItem(name: String, context: AdventureGameContext) {
@@ -389,7 +386,7 @@ struct EverestGame: AdventureGame {
             let item = inventory[index]
             switch item.name {
                 case "Map":
-                    context.write("You consult the map. It shows the route through the camps to the summit. The route to the summit of Mt. Everest starts at Basecamp and progresses through four higher camps: Camp I in the Western Cwm (at 6100m), Camp II at the foot of the Lhotse Face (at 6500m), Camp III on the Lhotse Face (at 7300m), and Camp IV in the Death Zone (at 7900m). From Camp IV, climbers ascend to the South Summit (at 8748m), navigate the treacherous Hillary Step, and finally reach the main summit (at 8848m). The journey is arduous and dangerous, with each section presenting unique challenges due to altitude, weather, and terrain.")
+                    context.write("You consult the map. It shows the route through the camps to the summit. The route to the summit of Mt. Everest starts at Basecamp and progresses through four higher camps: Camp I in the Western Cwm (at 6100m), Camp II at the foot of the Lhotse Face (at 6500m), Camp III on the Lhotse Face (at 7300m), and Camp IV in the Death Zone (at 7900m). From Camp IV, climbers ascend to the South Summit (at 8748m), navigate the treacherous Hillary Step, and finally reach the main summit (at 8848m). The journey is arduous and dangerous, with each section presenting unique challenges due to altitude, weather, and terrain. 🗺️")
                 case "Oxygen Tank":
                     if isHighAltitude(location: currentLocation) {
                         context.write("You use the oxygen tank. It helps you breathe in the thin air.")
@@ -415,9 +412,9 @@ struct EverestGame: AdventureGame {
         case "Summit":
             if gameState != .atSummit {
                 gameState = .atSummit
-                context.write("You take in the breathtaking view from the top of the world.")
+                context.write("You take in the breathtaking view from the top of the world. 😲🌎")
                 context.write("As you bask in your achievement, you can't help but think about the challenging descent ahead.")
-                context.write("The journey is only half over, and you'll need all your strength for the way down.")
+                context.write("The journey is only half over, and you'll need all your strength for the way down. 💪")
             }
         case "Hillary Step":
             if gameState == .atSummit {
@@ -438,7 +435,7 @@ struct EverestGame: AdventureGame {
 //            }
         case "Basecamp":
             if gameState == .descending {
-                context.write("You've successfully returned to Basecamp. Congratulations on your Everest expedition! 🥾")
+                context.write("You've successfully returned to Basecamp. Congratulations on your Everest expedition! 🎊🏅")
                 context.endGame()
             }
         default:
@@ -457,7 +454,7 @@ struct EverestGame: AdventureGame {
             let item = location.items[index]
             context.write(item.description)
         } else {
-            context.write("You don't see a \(name) here.")
+            context.write("You don't see a \(name) here. 🔍")
         }
     }
 }
