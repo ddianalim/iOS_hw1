@@ -18,7 +18,7 @@
 
 1. Map
 2. Weather Radio
-3. Oxygen Tank
+3. Oxygen Tank (x9)
 4. Rope
 
 **Explain how your code is designed. In particular, describe how you used structs or enums, as well as protocols.**
@@ -43,12 +43,12 @@ Optionals are used in several ways:
 **What extra credit features did you implement, if any?**
 
 * Rich Text Implementation: Added colored and formatted text for key game messages, including:
-  - Welcome message: Blue, large serif font
-  - Critical warnings and game over messages: Red, large serif font
-  - Messages that add new information: Yellow, serif font, size 13. (e.g. "Your inventory is empty", "Available commands")
-  - Messages narrating the story: Orange, serif font, size 13. (e.g. "As you start moving...", "As you attempt to descend", "As you bask in your achievement")
-  - Messages about actions: Blue, serif font, size 13. (e.g. "You use an oxygen tank", "You check the weather conditions")
-  - Summit Achievement + Victory message: Green, large serif font!
+  - **Welcome message:** Blue, large serif font
+  - **Critical warnings and game over messages:** Red, large serif font
+  - **New information messages:** Yellow, serif font, size 13. (e.g. "Your inventory is empty")
+  - **Narrative messages:** Orange, serif font, size 13. (e.g. "It shows the route through the camps")
+  - **Action messages:** Blue, serif font, size 13. (e.g. "You use an oxygen tank", "You check the weather conditions")
+  - **Summit Achievement + Victory message:** Green, large serif font!
 
 This implementation enhances the visual appeal and readability of the game, making important information stand out to the player.
 
@@ -58,128 +58,145 @@ This implementation enhances the visual appeal and readability of the game, maki
 
 ```
 take map
-north
+north (Camp I)
 take weather radio
 use weather radio
-north
-north
+north (Camp II)
+north (Camp III)
 take oxygen tank
 take oxygen tank
 take oxygen tank
 use weather radio
-north
+north (Camp IV)
 use oxygen tank
-north
-use oxygen tank
-west
+west (Sherpa Tent)
 take rope
-east
-use oxygen tank
-east
-use oxygen tank
-use rope
-north
-use oxygen tank
-south
-use oxygen tank
-west
-use oxygen tank
-south
-use oxygen tank
-west
-east
-use oxygen tank
-south
-use oxygen tank
-south
-use oxygen tank
-south
-south
-south
-```
-
-### Ending 2: Failure - Avalanche
-
-```
-take map
-take weather radio
-north
-north
-```
-
-### Ending 3: Failure - Running out of Oxygen
-
-```
-take map
-take weather radio
-north
-use weather radio
-north
-north
-take oxygen tank
 take oxygen tank
 take oxygen tank
 use weather radio
+east (Camp IV)
+use oxygen tank
+north (South Summit)
+use oxygen tank
+east (Hillary Step)
+use weather radio
+north (Summit!)
+use oxygen tank
+south (Hillary Step)
+use oxygen tank
+use weather radio
+west (South Summit)
+take oxygen tank
+take oxygen tank
+use oxygen tank
+south (Camp IV)
+use oxygen tank
+west (Sherpa Tent)
+take oxygen tank
+take oxygen tank
+use weather radio
+east (Camp IV)
+use oxygen tank
+south (Camp III)
+use weather radio
+south (Camp II)
+south (Camp I)
+use weather radio
+south (Basecamp!)
+```
+
+### Ending 2: Failure - Avalanche (just one example. If you don't [use weather radio] at Camp I, III, Sherpa Tent, or Hillary Step, you die)
+
+```
+take map
 north
-use oxygen tank
 north
+```
+
+### Ending 3: Failure - Running out of Oxygen (just one example)
+
+```
+take map
+north (Camp I)
+take weather radio
+use weather radio
+north (Camp II)
+north (Camp III)
+take oxygen tank
+use weather radio
+north (Camp IV)
 use oxygen tank
-east
-use oxygen tank
-use oxygen tank
-use oxygen tank
-north
+west (Sherpa Tent)
+use weather radio
+east (Camp IV)
 ```
 
 ### Ending 4: Failure - Falling at Hillary Step (because didn't take rope)
 
 ```
 take map
+north (Camp I)
 take weather radio
-north
 use weather radio
-north
-north
+north (Camp II)
+north (Camp III)
 take oxygen tank
 take oxygen tank
 take oxygen tank
 use weather radio
-north
+north (Camp IV)
 use oxygen tank
-north
+west (Sherpa Tent)
+take oxygen tank
+take oxygen tank
+use weather radio
+east (Camp IV)
 use oxygen tank
-east
+north (South Summit)
 use oxygen tank
-east
+east (Hillary Step)
+use weather radio
+north (Summit!)
+use oxygen tank
+south (Hillary Step)
 ```
 
 ### Ending 5: Failure - Exhaustion during descent (because didn't stop at Sherpa Tent)
 
 ```
 take map
+north (Camp I)
 take weather radio
-north
 use weather radio
-north
-north
+north (Camp II)
+north (Camp III)
 take oxygen tank
 take oxygen tank
 take oxygen tank
 use weather radio
-north
+north (Camp IV)
 use oxygen tank
-north
+west (Sherpa Tent)
+take rope
+take oxygen tank
+take oxygen tank
+use weather radio
+east (Camp IV)
 use oxygen tank
-east
+north (South Summit)
 use oxygen tank
-use rope
-north
+east (Hillary Step)
+use weather radio
+north (Summit!)
 use oxygen tank
-south
+south (Hillary Step)
 use oxygen tank
-west
+use weather radio
+west (South Summit)
+take oxygen tank
+take oxygen tank
 use oxygen tank
-south
+south (Camp IV)
 use oxygen tank
 south
 ```
