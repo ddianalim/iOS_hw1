@@ -55,12 +55,16 @@ struct EverestGame: AdventureGame {
         inventory = []
         
         locations = [
-            "Basecamp": Location(name: "Basecamp", description: "You are at the Everest Basecamp. The journey begins here.", exits: ["north": "Camp I"], items: [Item(name: "Map", description: "A detailed map of the Everest route.")]),
-            "Camp I": Location(name: "Camp I", description: "You've reached Camp I. The air is getting thinner.", exits: ["south": "Basecamp", "north": "Camp II"], items: [Item(name: "Weather Radio", description: "A device for checking current weather conditions.")]),
-            "Camp II": Location(name: "Camp II", description: "Welcome to Camp II. The summit looks closer, but it's still a long way.", exits: ["south": "Camp I", "north": "Camp III"], items: [Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes.")]),
-            "Camp III": Location(name: "Camp III", description: "Camp III is the last stop before the death zone.", exits: ["south": "Camp II", "north": "Camp IV"], items: []),
-            "Camp IV": Location(name: "Camp IV", description: "You're at Camp IV, the final camp before the summit push.", exits: ["south": "Camp III", "north": "Summit"], items: []),
-            "Summit": Location(name: "Summit", description: "Congratulations! You've reached the summit of Mt. Everest!", exits: ["south": "Camp IV"], items: [])
+            "Basecamp": Location(name: "Basecamp", description: "You are at the Everest Basecamp (5300m). The journey begins here.", exits: ["north": "Camp I"], items: [Item(name: "Map", description: "A detailed map of the Everest route.")]),
+            "Camp I": Location(name: "Camp I", description: "You've reached Camp I. The air is getting thinner. (6100m)", exits: ["south": "Basecamp", "north": "Camp II"], items: [Item(name: "Weather Radio", description: "A device for checking current weather conditions.")]),
+            "Camp II": Location(name: "Camp II", description: "Welcome to Camp II. The summit looks closer, but it's still a long way. (6500m)", exits: ["south": "Camp I", "north": "Camp III"], items: []),
+            "Camp III": Location(name: "Camp III", description: "Welcome to Camp III. Camp III is the last stop before the death zone. (7300m)", exits: ["south": "Camp II", "north": "Camp IV"], items: [Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes.")]),
+            "Camp IV": Location(name: "Camp IV", description: "You're at Camp IV, the final camp before the summit push. (7900m)", exits: ["south": "Camp III", "north": "Summit"], items: [Item(name: "Oxygen Tank", description: "An extra oxygen tank for high altitudes.")]),
+            "Sherpa Tent": Location(name: "Sherpa Tent", description: "A small tent used by Sherpas. It might contain useful supplies.", exits: ["east": "Camp IV"], items: [Item(name: "Rope", description: "A sturdy rope, essential for navigating treacherous parts of the climb.")]),
+            "South Summit": Location(name: "South Summit", description: "You're at the South Summit. The main summit is tantalizingly close, but the most dangerous part lies ahead. (8748m)", exits: ["south": "Camp IV", "east": "Hillary Step"], items: []),
+            "Hillary Step": Location(name: "Hillary Step", description: "You're at the Hillary Step, a near-vertical rock face. This is the last major challenge before the summit.", exits: ["west": "South Summit", "north": "Summit"], items: []),
+            
+            "Summit": Location(name: "Summit", description: "Congratulations! You've reached the summit of Mt. Everest! (8848m)", exits: ["south": "Camp IV"], items: [])
             // TODO: add south summit and Hilary Step
         ]
     }
@@ -144,6 +148,17 @@ struct EverestGame: AdventureGame {
                 context.write("As you start moving towards Camp II, you hear a loud rumbling. Before you can react, an avalanche engulfs you.")
                 context.write("Game Over: You were caught in an avalanche. Always check weather conditions before proceeding at high altitudes.")
                 context.endGame()
+            } else if currentLocation == "South Summit" && nextLocation == "Hillary Step" {
+                if !inventory.contains(where: { $0.name == "Rope" }) {
+                    context.write("You attempt to climb the Hillary Step without a rope. It's an extremely dangerous move.")
+                    context.write("You lose your footing and fall. The fall is fatal.")
+                    context.write("Game Over: Always ensure you have proper equipment before attempting dangerous climbs.")
+                    context.endGame()
+                } else {
+                    context.write("You affix the rope to the remaining 500 meters of the climb. Installing rope lines helps you safely navigate the Hillary Step.")
+                    currentLocation = nextLocation
+                    describeLocation(context: context)
+                }
             } else {
                 currentLocation = nextLocation
                 if let location = locations[currentLocation] {
@@ -165,8 +180,13 @@ struct EverestGame: AdventureGame {
                     context.write("- \(item.name)")
                 }
             }
+            else {
+                context.write(location.description)
+                context.write("You don't see any items here.")
+            }
 //            context.write("Exits: \(location.exits.keys.joined(separator: ", "))")
             // TODO: use map shows exits?
+            
         }
     }
     
@@ -178,6 +198,7 @@ struct EverestGame: AdventureGame {
             for item in inventory {
                 context.write("- \(item.name)")
             }
+            // TODO: debug why this isn't printing out whole inventory
         }
     }
     
@@ -218,7 +239,7 @@ struct EverestGame: AdventureGame {
                     context.write("You use the oxygen tank. It helps you breathe in the thin air.")
                     inventory.remove(at: index)
                 } else {
-                    context.write("You use up one oxygen tank herew.")
+                    context.write("You use up one oxygen tank here.")
                     inventory.remove(at: index)
                 }
             case "Weather Radio":
@@ -233,6 +254,41 @@ struct EverestGame: AdventureGame {
     }
     
     mutating func checkGameState(context: AdventureGameContext) {
+        switch currentLocation {
+        case "Summit":
+            if gameState != .atSummit {
+                gameState = .atSummit
+                context.write("You take in the breathtaking view from the top of the world.")
+                context.write("Remember, getting to the top is optional, getting down is mandatory.")
+                context.write("Type 'south' to begin your descent.")
+            }
+        case "Hillary Step":
+            if gameState == .atSummit {
+                gameState = .descending
+                context.write("You've started your descent from the summit. Be careful on your way down.")
+            }
+        case "Camp IV":
+            if !inventory.contains(where: { $0.name == "Oxygen Tank" }) {
+                context.write("You're in the death zone without a full oxygen tank. The lack of oxygen is fatal.")
+                context.write("Game Over: You didn't survive the climb.")
+                context.endGame()
+            }
+        case "Camp III":
+            if !inventory.contains(where: { $0.name == "Oxygen Tank" }) {
+                context.write("You're in the death zone without a full oxygen tank. The lack of oxygen is fatal.")
+                context.write("Game Over: You didn't survive the climb.")
+                context.endGame()
+            }
+        case "Basecamp":
+            if gameState == .descending {
+                context.write("You've successfully returned to Basecamp. Congratulations on your Everest expedition! 🥾")
+                context.endGame()
+            }
+        default:
+            if gameState == .atSummit {
+                gameState = .descending
+            }
+        }
     }
 }
 
