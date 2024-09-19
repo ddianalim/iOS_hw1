@@ -469,13 +469,10 @@ struct EverestGame: AdventureGame {
         commandsMessage.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
         commandsMessage.swiftUI.foregroundColor = .yellow
         context.write(commandsMessage)
-        context.write("- north, south, east, west: Move in a direction")
-        context.write("- look: Examine your surroundings")
-        context.write("- inventory: Check your inventory")
-        context.write("- take [item]: Pick up an item")
-        context.write("- use [item]: Use an item")
-        context.write("- examine [item]: Examine an item closely")
-        context.write("- help: Show this help message\n")
+        commandsMessage = AttributedString(" - north, south, east, west: Move in a direction\n - look: Examine your surroundings\n - inventory: Check your inventory\n - take [item]: Pick up an item\n - use [item]: Use an item\n - examine [item]: Examine an item closely\n - help: Show this help message\n")
+        commandsMessage.swiftUI.font = .system(size: 13, weight: .regular, design: .serif)
+        commandsMessage.swiftUI.foregroundColor = .yellow
+        context.write(commandsMessage)
         
         var colorExplanationTitle = AttributedString("Color Guide for Game Messages:")
         colorExplanationTitle.swiftUI.font = .system(size: 14, weight: .semibold, design: .serif)
