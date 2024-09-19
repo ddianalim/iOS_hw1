@@ -1,5 +1,9 @@
 # Climbing Mt. Everest 🏔️
 
+**NOTE:** This game is inspired by real events and challenges faced by climbers on Mount Everest. I learned about these in CIS 5460, Engineering Entrepreneurship II, where we had to do a Mt. Everest Simulation and read a case study. This is the route to the summit (Mount Everest Route – South Col Route) that I based the game on: 
+
+<img src="hw1.playground/Resources/everest.png" alt="Mount Everest Route – South Col Route" height="500">
+
 ## Explanations
 
 **What locations/rooms does your game have?**
@@ -23,8 +27,6 @@
 
 **Explain how your code is designed. In particular, describe how you used structs or enums, as well as protocols.**
 
-The game is designed using several structs and an enum:
-
 1. `Location` struct: Represents each location in the game, containing properties like name, description, exits, and items.
 2. `Item` struct: Represents items that can be picked up and used by the player.
 3. `GameState` enum: Tracks the player's progress through the game (e.g., atBasecamp, onMountain, atSummit, descending, gameOver).
@@ -33,8 +35,6 @@ The game is designed using several structs and an enum:
 The `GameObject` protocol is used to provide a common interface for both `Location` and `Item` structs, ensuring they both have `name` and `description` properties.
 
 **How do you use optionals in your program?**
-
-Optionals are used in several ways:
 
 1. In the `handle` function, the `argument` is an optional `String?` that may or may not contain additional input from the user.
 2. When accessing locations and items, optionals are used with dictionary lookups and array searches, using `if let` and optional chaining to safely unwrap values.
@@ -203,9 +203,7 @@ south
 
 ## Additional Resources
 
-This game is inspired by real events and challenges faced by climbers on Mount Everest. For more information about the 1996 Mount Everest disaster and the complexities of high-altitude climbing, you can refer to the following case study:
-
-Roberto, M. A., & Carioggia, G. M. (2003). Mount Everest--1996. Harvard Business School Case, 303-061.
+For more information about the 1996 Mount Everest disaster and the complexities of high-altitude climbing, you can refer to the case study: 'Roberto, M. A., & Carioggia, G. M. (2003). Mount Everest--1996. Harvard Business School Case, 303-061.'
 
 You can access the PDF of this case study here: [Mount Everest - 1996 (PDF)](https://services.hbsp.harvard.edu/api/courses/1204452/items/303061-PDF-ENG/sclinks/3b1f40a0606d30ba3abbd0c80117341a)
 
